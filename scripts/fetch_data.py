@@ -27,6 +27,7 @@ TICKERS = {
     ],
     "macroCommodities": [
         {"symbol": "GC=F", "name": "Gold"},
+        {"symbol": "SI=F", "name": "Silver"},
         {"symbol": "CL=F", "name": "Crude Oil"},
         {"symbol": "BTC-USD", "name": "Bitcoin"},
     ],

@@ -28,6 +28,7 @@ INSTRUMENTS = {
     ],
     "macroCommodities": [
         {"symbol": "GC=F", "name": "Gold", "base": 2886.70, "vol": 0.01},
+        {"symbol": "SI=F", "name": "Silver", "base": 32.15, "vol": 0.015},
         {"symbol": "CL=F", "name": "Crude Oil", "base": 71.03, "vol": 0.02},
         {"symbol": "BTC-USD", "name": "Bitcoin", "base": 97482.0, "vol": 0.03},
     ],

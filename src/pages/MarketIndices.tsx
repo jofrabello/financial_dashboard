@@ -3,7 +3,8 @@ import { dashboardData } from '../data/marketIndices';
 import { IndexCard } from '../components/IndexCard';
 import { IndexDetail } from '../components/IndexDetail';
 import { RatioChart } from '../components/RatioChart';
-import { Instrument, CategoryKey } from '../types/market';
+import { ChartModal } from '../components/ChartModal';
+import { Instrument, CategoryKey, HistoryPoint, RatioPoint } from '../types/market';
 
 const CATEGORY_META: Record<CategoryKey, { title: string; subtitle: string }> = {
   coreBenchmarks: {
@@ -26,8 +27,16 @@ const CATEGORY_META: Record<CategoryKey, { title: string; subtitle: string }> = 
 
 const CATEGORIES: CategoryKey[] = ['coreBenchmarks', 'fearCreditGauges', 'sectorInternals', 'macroCommodities'];
 
+interface ModalState {
+  title: string;
+  subtitle?: string;
+  data: HistoryPoint[] | RatioPoint[];
+  type: 'history' | 'ratio';
+}
+
 export function MarketIndices() {
   const [selectedSymbol, setSelectedSymbol] = useState<string>('^GSPC');
+  const [modal, setModal] = useState<ModalState | null>(null);
 
   const allInstruments: Instrument[] = CATEGORIES.flatMap(
     (cat) => dashboardData.categories[cat]
@@ -97,27 +106,59 @@ export function MarketIndices() {
           <section className="category-section">
             <div className="category-header">
               <h2 className="category-title">Market Regime Indicators</h2>
-              <p className="category-subtitle">Ratio analysis — offense vs. defense mode</p>
+              <p className="category-subtitle">Ratio analysis — offense vs. defense mode. Click charts to expand.</p>
             </div>
             <div className="ratio-charts">
               <RatioChart
                 data={dashboardData.ratios.techVsStaples}
                 title="Tech / Staples Ratio (XLK / XLP)"
                 description="Rising = Offense (risk-on). Falling = Defense (risk-off)."
+                onExpand={() => setModal({
+                  title: 'Tech / Staples Ratio (XLK / XLP)',
+                  subtitle: 'Rising = Offense (risk-on). Falling = Defense (risk-off).',
+                  data: dashboardData.ratios.techVsStaples,
+                  type: 'ratio',
+                })}
               />
               <RatioChart
                 data={dashboardData.ratios.equalWeightVsSP500}
                 title="Equal Weight / S&P 500 (RSP / ^GSPC)"
                 description="Rising = broad participation. Falling = narrow mega-cap led rally."
+                onExpand={() => setModal({
+                  title: 'Equal Weight / S&P 500 (RSP / ^GSPC)',
+                  subtitle: 'Rising = broad participation. Falling = narrow mega-cap led rally.',
+                  data: dashboardData.ratios.equalWeightVsSP500,
+                  type: 'ratio',
+                })}
               />
             </div>
           </section>
         </div>
 
         <div className="dashboard-detail-panel">
-          {selected && <IndexDetail instrument={selected} />}
+          {selected && (
+            <IndexDetail
+              instrument={selected}
+              onExpandChart={() => setModal({
+                title: selected.name,
+                subtitle: selected.symbol,
+                data: selected.history,
+                type: 'history',
+              })}
+            />
+          )}
         </div>
       </div>
+
+      {modal && (
+        <ChartModal
+          title={modal.title}
+          subtitle={modal.subtitle}
+          data={modal.data}
+          type={modal.type}
+          onClose={() => setModal(null)}
+        />
+      )}
     </div>
   );
 }

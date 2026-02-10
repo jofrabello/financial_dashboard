@@ -3,9 +3,10 @@ import { MiniChart } from './MiniChart';
 
 interface IndexDetailProps {
   instrument: Instrument;
+  onExpandChart?: () => void;
 }
 
-export function IndexDetail({ instrument }: IndexDetailProps) {
+export function IndexDetail({ instrument, onExpandChart }: IndexDetailProps) {
   const isPositive = instrument.change >= 0;
 
   return (
@@ -26,7 +27,8 @@ export function IndexDetail({ instrument }: IndexDetailProps) {
       </div>
 
       <div className="detail-chart">
-        <MiniChart data={instrument.history} />
+        <MiniChart data={instrument.history} onExpand={onExpandChart} />
+        {onExpandChart && <p className="chart-expand-hint">Click chart to expand</p>}
       </div>
 
       <div className="detail-stats">

@@ -1,7 +1,7 @@
-import { IndexHistoryPoint } from '../types/market';
+import { HistoryPoint } from '../types/market';
 
 interface MiniChartProps {
-  data: IndexHistoryPoint[];
+  data: HistoryPoint[];
 }
 
 export function MiniChart({ data }: MiniChartProps) {
@@ -31,30 +31,29 @@ export function MiniChart({ data }: MiniChartProps) {
 
   const areaD = `${pathD} L ${xScale(data.length - 1).toFixed(1)} ${(padding.top + chartHeight).toFixed(1)} L ${padding.left.toFixed(1)} ${(padding.top + chartHeight).toFixed(1)} Z`;
 
-  // Y-axis labels
   const yTicks = 5;
   const yLabels = Array.from({ length: yTicks }, (_, i) => {
     const val = minVal + (valRange * i) / (yTicks - 1);
     return { val, y: yScale(val) };
   });
 
-  // X-axis labels (show ~6 dates)
   const xTicks = 6;
   const xLabels = Array.from({ length: xTicks }, (_, i) => {
     const idx = Math.round((i / (xTicks - 1)) * (data.length - 1));
     return { label: data[idx].date.slice(5), x: xScale(idx) };
   });
 
+  const gradId = `grad-${isPositive ? 'up' : 'down'}-${data[0].date}`;
+
   return (
     <svg viewBox={`0 0 ${width} ${height}`} className="chart-svg">
       <defs>
-        <linearGradient id={`grad-${isPositive ? 'up' : 'down'}`} x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={lineColor} stopOpacity="0.2" />
           <stop offset="100%" stopColor={lineColor} stopOpacity="0.02" />
         </linearGradient>
       </defs>
 
-      {/* Grid lines */}
       {yLabels.map((t, i) => (
         <line
           key={i}
@@ -67,20 +66,15 @@ export function MiniChart({ data }: MiniChartProps) {
         />
       ))}
 
-      {/* Area fill */}
-      <path d={areaD} fill={`url(#grad-${isPositive ? 'up' : 'down'})`} />
-
-      {/* Line */}
+      <path d={areaD} fill={`url(#${gradId})`} />
       <path d={pathD} fill="none" stroke={lineColor} strokeWidth="2" />
 
-      {/* Y-axis labels */}
       {yLabels.map((t, i) => (
         <text key={i} x={padding.left - 8} y={t.y + 4} textAnchor="end" fontSize="11" fill="#6b7280">
           {t.val >= 1000 ? (t.val / 1000).toFixed(1) + 'k' : t.val.toFixed(1)}
         </text>
       ))}
 
-      {/* X-axis labels */}
       {xLabels.map((t, i) => (
         <text key={i} x={t.x} y={height - 5} textAnchor="middle" fontSize="11" fill="#6b7280">
           {t.label}

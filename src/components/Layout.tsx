@@ -9,7 +9,7 @@ export function Layout({ children }: LayoutProps) {
   const location = useLocation();
 
   const navItems = [
-    { to: '/', label: 'Market Indices' },
+    { to: '/', label: 'Dashboard' },
   ];
 
   return (

@@ -1,36 +1,55 @@
 import { useState } from 'react';
-import { marketIndices, indexHistories } from '../data/marketIndices';
+import { dashboardData } from '../data/marketIndices';
 import { IndexCard } from '../components/IndexCard';
 import { IndexDetail } from '../components/IndexDetail';
-import { MarketIndex } from '../types/market';
+import { RatioChart } from '../components/RatioChart';
+import { Instrument, CategoryKey } from '../types/market';
 
-type RegionFilter = 'All' | 'US' | 'Europe' | 'Asia';
+const CATEGORY_META: Record<CategoryKey, { title: string; subtitle: string }> = {
+  coreBenchmarks: {
+    title: 'Core Benchmarks',
+    subtitle: 'Market direction — if these are red, almost everything else will be too',
+  },
+  fearCreditGauges: {
+    title: 'Fear & Credit Gauges',
+    subtitle: 'How the market is moving, not just where it\'s going',
+  },
+  sectorInternals: {
+    title: 'Sector & Smart Money Internals',
+    subtitle: 'Where capital is rotating',
+  },
+  macroCommodities: {
+    title: 'Macro & Commodities',
+    subtitle: 'Inflation, hedges, and risk appetite',
+  },
+};
+
+const CATEGORIES: CategoryKey[] = ['coreBenchmarks', 'fearCreditGauges', 'sectorInternals', 'macroCommodities'];
 
 export function MarketIndices() {
-  const [selectedSymbol, setSelectedSymbol] = useState<string>('SPX');
-  const [regionFilter, setRegionFilter] = useState<RegionFilter>('All');
+  const [selectedSymbol, setSelectedSymbol] = useState<string>('^GSPC');
 
-  const selectedIndex = marketIndices.find((idx) => idx.symbol === selectedSymbol) as MarketIndex;
-  const selectedHistory = indexHistories[selectedSymbol] ?? [];
+  const allInstruments: Instrument[] = CATEGORIES.flatMap(
+    (cat) => dashboardData.categories[cat]
+  );
 
-  const filteredIndices =
-    regionFilter === 'All'
-      ? marketIndices
-      : marketIndices.filter((idx) => idx.region === regionFilter);
-
-  const regions: RegionFilter[] = ['All', 'US', 'Europe', 'Asia'];
+  const selected = allInstruments.find((inst) => inst.symbol === selectedSymbol);
 
   const summary = {
-    advancing: marketIndices.filter((i) => i.change > 0).length,
-    declining: marketIndices.filter((i) => i.change < 0).length,
-    unchanged: marketIndices.filter((i) => i.change === 0).length,
+    advancing: allInstruments.filter((i) => i.change > 0).length,
+    declining: allInstruments.filter((i) => i.change < 0).length,
+    unchanged: allInstruments.filter((i) => i.change === 0).length,
   };
+
+  const lastUpdated = new Date(dashboardData.lastUpdated).toLocaleString();
 
   return (
     <div className="market-indices-page">
       <div className="page-header">
-        <h1>Market Indices</h1>
-        <p className="page-subtitle">Global market overview as of February 10, 2026</p>
+        <h1>Market Dashboard</h1>
+        <p className="page-subtitle">
+          Live data via Yahoo Finance &middot; Last updated: {lastUpdated}
+        </p>
       </div>
 
       <div className="summary-bar">
@@ -48,34 +67,55 @@ export function MarketIndices() {
         </div>
       </div>
 
-      <div className="region-filters">
-        {regions.map((region) => (
-          <button
-            key={region}
-            className={`filter-btn ${regionFilter === region ? 'active' : ''}`}
-            onClick={() => setRegionFilter(region)}
-          >
-            {region}
-          </button>
-        ))}
-      </div>
+      <div className="dashboard-layout">
+        <div className="dashboard-main">
+          {CATEGORIES.map((catKey) => {
+            const instruments = dashboardData.categories[catKey];
+            if (!instruments || instruments.length === 0) return null;
+            const meta = CATEGORY_META[catKey];
 
-      <div className="indices-layout">
-        <div className="indices-grid">
-          {filteredIndices.map((idx) => (
-            <IndexCard
-              key={idx.symbol}
-              index={idx}
-              onClick={setSelectedSymbol}
-              isSelected={idx.symbol === selectedSymbol}
-            />
-          ))}
+            return (
+              <section key={catKey} className="category-section">
+                <div className="category-header">
+                  <h2 className="category-title">{meta.title}</h2>
+                  <p className="category-subtitle">{meta.subtitle}</p>
+                </div>
+                <div className="category-grid">
+                  {instruments.map((inst) => (
+                    <IndexCard
+                      key={inst.symbol}
+                      instrument={inst}
+                      onClick={setSelectedSymbol}
+                      isSelected={inst.symbol === selectedSymbol}
+                    />
+                  ))}
+                </div>
+              </section>
+            );
+          })}
+
+          <section className="category-section">
+            <div className="category-header">
+              <h2 className="category-title">Market Regime Indicators</h2>
+              <p className="category-subtitle">Ratio analysis — offense vs. defense mode</p>
+            </div>
+            <div className="ratio-charts">
+              <RatioChart
+                data={dashboardData.ratios.techVsStaples}
+                title="Tech / Staples Ratio (XLK / XLP)"
+                description="Rising = Offense (risk-on). Falling = Defense (risk-off)."
+              />
+              <RatioChart
+                data={dashboardData.ratios.equalWeightVsSP500}
+                title="Equal Weight / S&P 500 (RSP / ^GSPC)"
+                description="Rising = broad participation. Falling = narrow mega-cap led rally."
+              />
+            </div>
+          </section>
         </div>
 
-        <div className="indices-detail-panel">
-          {selectedIndex && (
-            <IndexDetail index={selectedIndex} history={selectedHistory} />
-          )}
+        <div className="dashboard-detail-panel">
+          {selected && <IndexDetail instrument={selected} />}
         </div>
       </div>
     </div>

@@ -3,6 +3,8 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  schedule:
+    - cron: '0 13,18,21 * * 1-5'  # 9am, 2pm, 5pm ET on weekdays
   workflow_dispatch:
 
 permissions:
@@ -19,6 +21,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install yfinance
+      - run: python scripts/fetch_data.py
       - uses: actions/setup-node@v4
         with:
           node-version: 20

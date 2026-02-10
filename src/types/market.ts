@@ -1,4 +1,4 @@
-export interface MarketIndex {
+export interface Instrument {
   symbol: string;
   name: string;
   value: number;
@@ -8,10 +8,31 @@ export interface MarketIndex {
   dayLow: number;
   yearHigh: number;
   yearLow: number;
-  region: 'US' | 'Europe' | 'Asia';
+  history: HistoryPoint[];
 }
 
-export interface IndexHistoryPoint {
+export interface HistoryPoint {
   date: string;
   close: number;
 }
+
+export interface RatioPoint {
+  date: string;
+  value: number;
+}
+
+export interface DashboardData {
+  lastUpdated: string;
+  categories: {
+    coreBenchmarks: Instrument[];
+    fearCreditGauges: Instrument[];
+    sectorInternals: Instrument[];
+    macroCommodities: Instrument[];
+  };
+  ratios: {
+    techVsStaples: RatioPoint[];
+    equalWeightVsSP500: RatioPoint[];
+  };
+}
+
+export type CategoryKey = keyof DashboardData['categories'];

@@ -1,63 +1,62 @@
-import { MarketIndex, IndexHistoryPoint } from '../types/market';
+import { Instrument } from '../types/market';
 import { MiniChart } from './MiniChart';
 
 interface IndexDetailProps {
-  index: MarketIndex;
-  history: IndexHistoryPoint[];
+  instrument: Instrument;
 }
 
-export function IndexDetail({ index, history }: IndexDetailProps) {
-  const isPositive = index.change >= 0;
+export function IndexDetail({ instrument }: IndexDetailProps) {
+  const isPositive = instrument.change >= 0;
 
   return (
     <div className="index-detail">
       <div className="detail-header">
         <div>
-          <h2 className="detail-name">{index.name}</h2>
-          <span className="detail-symbol">{index.symbol}</span>
+          <h2 className="detail-name">{instrument.name}</h2>
+          <span className="detail-symbol">{instrument.symbol}</span>
         </div>
         <div className="detail-price-section">
           <span className="detail-value">
-            {index.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {instrument.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
           <span className={`detail-change ${isPositive ? 'positive' : 'negative'}`}>
-            {isPositive ? '+' : ''}{index.change.toFixed(2)} ({isPositive ? '+' : ''}{index.changePercent.toFixed(2)}%)
+            {isPositive ? '+' : ''}{instrument.change.toFixed(2)} ({isPositive ? '+' : ''}{instrument.changePercent.toFixed(2)}%)
           </span>
         </div>
       </div>
 
       <div className="detail-chart">
-        <MiniChart data={history} />
+        <MiniChart data={instrument.history} />
       </div>
 
       <div className="detail-stats">
         <div className="stat">
           <span className="stat-label">Day Range</span>
           <span className="stat-value">
-            {index.dayLow.toLocaleString(undefined, { minimumFractionDigits: 2 })} &ndash; {index.dayHigh.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            {instrument.dayLow.toLocaleString(undefined, { minimumFractionDigits: 2 })} &ndash; {instrument.dayHigh.toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </span>
         </div>
         <div className="stat">
           <span className="stat-label">52-Week Range</span>
           <span className="stat-value">
-            {index.yearLow.toLocaleString(undefined, { minimumFractionDigits: 2 })} &ndash; {index.yearHigh.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            {instrument.yearLow.toLocaleString(undefined, { minimumFractionDigits: 2 })} &ndash; {instrument.yearHigh.toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </span>
         </div>
         <div className="stat">
           <span className="stat-label">Day High</span>
-          <span className="stat-value">{index.dayHigh.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+          <span className="stat-value">{instrument.dayHigh.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
         </div>
         <div className="stat">
           <span className="stat-label">Day Low</span>
-          <span className="stat-value">{index.dayLow.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+          <span className="stat-value">{instrument.dayLow.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
         </div>
         <div className="stat">
           <span className="stat-label">52-Week High</span>
-          <span className="stat-value">{index.yearHigh.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+          <span className="stat-value">{instrument.yearHigh.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
         </div>
         <div className="stat">
           <span className="stat-label">52-Week Low</span>
-          <span className="stat-value">{index.yearLow.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+          <span className="stat-value">{instrument.yearLow.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
         </div>
       </div>
     </div>
